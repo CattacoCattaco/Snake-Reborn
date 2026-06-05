@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://q5u230761s8o"
-path="res://.godot/imported/snake_colors_dark.png-6753e79c21d4397697c1a13a9ae705b5.ctex"
+path="res://.godot/imported/snake_colors_dark.png-9c40aad299f573aaac1fdc80c7bc1a47.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tile/color_palettes/snake_colors_dark.png"
-dest_files=["res://.godot/imported/snake_colors_dark.png-6753e79c21d4397697c1a13a9ae705b5.ctex"]
+source_file="res://tile_map/tile/color_palettes/snake_colors_dark.png"
+dest_files=["res://.godot/imported/snake_colors_dark.png-9c40aad299f573aaac1fdc80c7bc1a47.ctex"]
 
 [params]
 

@@ -1,3 +1,14 @@
 [gd_scene format=3 uid="uid://d0t42184sogyl"]
 
+[ext_resource type="Script" uid="uid://pswl4m5w42xh" path="res://tile_map/snake_tile_map.gd" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://cxwq4c07qitj1" path="res://tile_map/tile/color_palettes/snake_colors_light.png" id="3_7mycd"]
+[ext_resource type="Texture2D" uid="uid://q5u230761s8o" path="res://tile_map/tile/color_palettes/snake_colors_dark.png" id="4_1bvp3"]
+[ext_resource type="Texture2D" uid="uid://rvjmtmqmintp" path="res://tile_map/tile/sprites/snake.png" id="4_272bh"]
+
 [node name="Main" type="Node2D" unique_id=475188452]
+
+[node name="SnakeTileMap" type="Node2D" parent="." unique_id=451807890]
+script = ExtResource("1_ig7tw")
+sprite_sheet = ExtResource("4_272bh")
+light_palette = ExtResource("3_7mycd")
+dark_palette = ExtResource("4_1bvp3")
