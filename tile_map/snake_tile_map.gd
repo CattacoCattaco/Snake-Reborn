@@ -1,7 +1,6 @@
 class_name SnakeTileMap
 extends Node2D
 
-@export var sprite_sheet: Texture2D
 @export var light_palette: Texture2D
 @export var dark_palette: Texture2D
 
@@ -22,11 +21,11 @@ func _ready() -> void:
 			tile.position = pos * 16 + offset
 			tiles[y].append(tile)
 			
-			tile.tile_sprites = sprite_sheet
 			tile.color_palette = light_palette
+			tile.is_light_tile = (x + y) % 2 == 0
 			tile.sprite_coords = Tile.EMPTY
-			tile.flip_h = false
-			tile.flip_v = false
+			tile.fg_sprite.flip_h = false
+			tile.fg_sprite.flip_v = false
 	
 	snake = [Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(3, 2), Vector2i(4, 2),
 			Vector2i(4, 3), Vector2i(4, 4), Vector2i(5, 4)]
@@ -78,11 +77,10 @@ func draw_snake() -> void:
 func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool, flip_h: bool, flip_v: bool
 		) -> void:
 	var tile := get_tile(pos)
-	tile.tile_sprites = sprite_sheet
 	tile.color_palette = light_palette if is_light else dark_palette
 	tile.sprite_coords = sprite_coords
-	tile.flip_h = flip_h
-	tile.flip_v = flip_v
+	tile.fg_sprite.flip_h = flip_h
+	tile.fg_sprite.flip_v = flip_v
 
 
 func get_tile(pos: Vector2i) -> Tile:

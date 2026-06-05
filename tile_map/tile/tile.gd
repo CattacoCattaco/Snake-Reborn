@@ -1,6 +1,9 @@
 @tool
 class_name Tile
-extends Sprite2D
+extends Node2D
+
+const FG_SPRITE_SHEET: Texture2D = preload("res://tile_map/tile/sprites/tiles.png")
+const BG_SPRITE_SHEET: Texture2D = preload("res://tile_map/tile/sprites/background_tiles.png")
 
 const CORNER_BOTTOM_RIGHT := Vector2i(0, 0)
 const CORNER_TOP_RIGHT := Vector2i(0, 1)
@@ -26,18 +29,30 @@ const EMPTY := Vector2i(6, 1)
 		color_palette = value
 		material.set_shader_parameter("palette", value)
 
+@export var is_light_tile: bool:
+	set(value):
+		is_light_tile = value
+		
+		var atlas := AtlasTexture.new()
+		atlas.atlas = BG_SPRITE_SHEET
+		atlas.region.size = Vector2(16, 16)
+		atlas.region.position = Vector2(0 if is_light_tile else 16, 0)
+		
+		bg_sprite.texture = atlas
+
 @export var sprite_coords: Vector2i:
 	set(value):
 		sprite_coords = value
 		
 		var atlas := AtlasTexture.new()
-		atlas.atlas = tile_sprites
+		atlas.atlas = FG_SPRITE_SHEET
 		atlas.region.size = Vector2(16, 16)
 		atlas.region.position = Vector2(sprite_coords * 16)
 		
-		texture = atlas
+		fg_sprite.texture = atlas
 
-var tile_sprites: Texture2D
+var bg_sprite: Sprite2D
+var fg_sprite: Sprite2D
 
 # Returns HORZONTAL_ROW if is_horizontal
 # [br]Otherwise, returns VERTICAL_ROW
@@ -46,4 +61,14 @@ static func get_hv_row(is_horizontal: bool) -> int:
 
 
 func _ready() -> void:
-	centered = false
+	bg_sprite = Sprite2D.new()
+	fg_sprite = Sprite2D.new()
+	
+	add_child(bg_sprite)
+	add_child(fg_sprite)
+	
+	bg_sprite.centered = false
+	fg_sprite.centered = false
+	
+	bg_sprite.use_parent_material = true
+	fg_sprite.use_parent_material = true
