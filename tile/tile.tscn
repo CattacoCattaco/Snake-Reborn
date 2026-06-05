@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://bs10ahv86vg5"]
+
+[ext_resource type="Shader" uid="uid://i5dexvhnvoaj" path="res://tile/tile.gdshader" id="1_f32e7"]
+[ext_resource type="Script" uid="uid://bst03edvkx1rx" path="res://tile/tile.gd" id="1_su6p1"]
+[ext_resource type="Texture2D" uid="uid://rvjmtmqmintp" path="res://tile/sprites/snake.png" id="2_mc7i4"]
+[ext_resource type="Texture2D" uid="uid://cxwq4c07qitj1" path="res://tile/color_palettes/snake_colors_light.png" id="3_f32e7"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ecbr6"]
+shader = ExtResource("1_f32e7")
+shader_parameter/palette = ExtResource("3_f32e7")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mc7i4"]
+atlas = ExtResource("2_mc7i4")
+region = Rect2(32, 0, 16, 16)
+
+[node name="Tile" type="Sprite2D" unique_id=888354226]
+material = SubResource("ShaderMaterial_ecbr6")
+texture = SubResource("AtlasTexture_mc7i4")
+centered = false
+script = ExtResource("1_su6p1")
+tile_sprites = ExtResource("2_mc7i4")
+color_palette = ExtResource("3_f32e7")
+sprite_coords = Vector2i(2, 0)
