@@ -6,7 +6,7 @@ const MOVE_TIME_SECONDS: float = 0.15
 @export var light_palette: Texture2D
 @export var dark_palette: Texture2D
 
-@export var board_size := Vector2i(20, 20)
+@export var board_size := Vector2i(24, 21)
 
 var move_timer: Timer
 var current_move_dir: Vector2i
@@ -32,11 +32,10 @@ func _ready() -> void:
 			tile.fg_sprite.flip_h = false
 			tile.fg_sprite.flip_v = false
 	
-	snake = [Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(3, 2), Vector2i(4, 2),
-			Vector2i(4, 3), Vector2i(4, 4), Vector2i(5, 4)]
+	snake = [Vector2i(11, 10), Vector2i(12, 10)]
 	draw_snake()
 	
-	set_tile(Vector2i(5, 5), Tile.APPLE, true, false, false)
+	place_apple()
 	
 	move_timer = Timer.new()
 	add_child(move_timer)
@@ -56,7 +55,7 @@ func _input(event: InputEvent) -> void:
 
 
 func change_snake_dir(dir: Vector2i) -> void:
-	if current_move_dir == dir or current_move_dir == -dir:
+	if current_move_dir == dir or (current_move_dir == -dir and len(snake) > 2):
 		return
 	
 	current_move_dir = dir
@@ -76,7 +75,11 @@ func move_snake() -> void:
 		print("Can't move into self")
 		return
 	
-	clear_tile(snake[-1])
+	var ate: bool = new_head_tile.has_apple()
+	var old_tale: Vector2i = snake[-1]
+	
+	if not ate:
+		clear_tile(snake[-1])
 	
 	for i in range(len(snake) - 1, 0, -1):
 		snake[i] = snake[i - 1]
@@ -84,8 +87,13 @@ func move_snake() -> void:
 		tile.color_palette = light_palette if tile.color_palette == dark_palette else dark_palette
 	
 	snake[0] = new_head
+	if ate:
+		snake.append(old_tale)
+		place_apple()
+	
 	draw_head()
-	draw_segment(1, false)
+	if len(snake) > 2:
+		draw_segment(1, false)
 	draw_tail(len(snake) % 2 == 1)
 	
 	reset_move_timer()
@@ -141,6 +149,19 @@ func draw_tail(is_light: bool) -> void:
 	var flip_h: bool = dir.x == 1
 	var flip_v: bool = dir.y == 1
 	set_tile(snake[-1], sprite_coords, is_light, flip_h, flip_v)
+
+
+func place_apple() -> void:
+	var pos: Vector2i
+	
+	pos.x = randi_range(0, board_size.x - 1)
+	pos.y = randi_range(0, board_size.y - 1)
+	
+	while get_tile(pos).has_snake():
+		pos.x = randi_range(0, board_size.x - 1)
+		pos.y = randi_range(0, board_size.y - 1)
+	
+	set_tile(pos, Tile.APPLE, true, false, false)
 
 
 func clear_tile(pos: Vector2i) -> void:
