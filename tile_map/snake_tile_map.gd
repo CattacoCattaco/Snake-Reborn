@@ -8,6 +8,7 @@ enum Level {
 
 const MOVE_TIME_SECONDS: float = 0.125
 
+@export var bg: ColorRect
 @export var score_label: Label
 
 @export var board_size := Vector2i(24, 21)
@@ -47,6 +48,9 @@ func _ready() -> void:
 	reset_snake()
 	
 	place_apple()
+	
+	bg.color = get_light_palette().get_image().get_pixel(1, 1)
+	score_label.label_settings.font_color = get_light_palette().get_image().get_pixel(0, 1)
 	
 	move_timer = Timer.new()
 	add_child(move_timer)
@@ -124,9 +128,15 @@ func die() -> void:
 			score = 0
 	
 	move_timer.stop()
+	current_move_dir = Vector2i(0, 0)
+	
+	bg.color = get_light_palette().get_image().get_pixel(1, 1)
+	score_label.label_settings.font_color = get_light_palette().get_image().get_pixel(0, 1)
+	
 	clear_board()
 	reset_snake()
 	place_apple()
+	
 	if level == Level.GHOST:
 		place_flame()
 
