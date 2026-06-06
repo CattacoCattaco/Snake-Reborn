@@ -6,7 +6,7 @@ enum Level {
 	GHOST,
 }
 
-const MOVE_TIME_SECONDS: float = 0.15
+const MOVE_TIME_SECONDS: float = 0.125
 
 @export var score_label: Label
 
@@ -18,7 +18,6 @@ var move_timer: Timer
 var current_move_dir: Vector2i
 
 var snake: Array[Vector2i]
-var apple: Vector2i
 
 var tiles: Array[Array]
 
@@ -85,7 +84,7 @@ func move_snake() -> void:
 	
 	var new_head_tile: Tile = get_tile(new_head)
 	
-	if snake[-1] != new_head and new_head_tile.has_snake():
+	if snake[-1] != new_head and (new_head_tile.has_snake() or new_head_tile.has_flame()):
 		die()
 		return
 	
@@ -105,6 +104,8 @@ func move_snake() -> void:
 		snake.append(old_tale)
 		place_apple()
 		score += 1
+		if level == Level.GHOST:
+			place_flame()
 	
 	draw_head()
 	if len(snake) > 2:
@@ -126,6 +127,8 @@ func die() -> void:
 	clear_board()
 	reset_snake()
 	place_apple()
+	if level == Level.GHOST:
+		place_flame()
 
 
 func reset_snake() -> void:
@@ -186,8 +189,15 @@ func draw_tail(is_light: bool) -> void:
 
 
 func place_apple() -> void:
-	apple = get_random_empty_tile()
-	set_tile(apple, Tile.APPLE, true, false, false)
+	var pos: Vector2i = get_random_empty_tile()
+	set_tile(pos, Tile.APPLE, true, false, false)
+
+
+func place_flame() -> void:
+	var pos: Vector2i = get_random_empty_tile()
+	set_tile(pos, Tile.FLAME, true, false, false)
+	var tile: Tile = get_tile(pos)
+	tile.color_palette = preload("res://tile_map/tile/color_palettes/fire_colors.png")
 
 
 func get_random_empty_tile() -> Vector2i:
@@ -196,7 +206,7 @@ func get_random_empty_tile() -> Vector2i:
 	pos.x = randi_range(0, board_size.x - 1)
 	pos.y = randi_range(0, board_size.y - 1)
 	
-	while get_tile(pos).has_snake() or pos == apple:
+	while not get_tile(pos).is_empty():
 		pos.x = randi_range(0, board_size.x - 1)
 		pos.y = randi_range(0, board_size.y - 1)
 	

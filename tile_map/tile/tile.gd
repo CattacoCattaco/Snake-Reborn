@@ -5,7 +5,7 @@ extends Node2D
 const FG_SPRITE_SHEET: Texture2D = preload("res://tile_map/tile/sprites/tiles.png")
 const BG_SPRITE_SHEET: Texture2D = preload("res://tile_map/tile/sprites/background_tiles.png")
 
-const SNAKE_PART_COLUMNS: Array[int] = [0, 1, 2, 3, 4, 5]
+const SNAKE_PART_COLUMNS: Array[int] = [0, 1, 2, 3, 4]
 
 const CORNER_BOTTOM_RIGHT := Vector2i(0, 0)
 const CORNER_TOP_RIGHT := Vector2i(0, 1)
@@ -15,12 +15,13 @@ const CORNER_TOP_LEFT := Vector2i(1, 1)
 const STRAIGHT_COLUMN: int = 2
 const HEAD_COLUMN: int = 3
 const TAIL_COLUMN: int = 4
-const DEAD_COLUMN: int = 5
 const HORZONTAL_ROW: int = 0
 const VERTICAL_ROW: int = 1
 
-const APPLE := Vector2i(6, 0)
-const EMPTY := Vector2i(6, 1)
+const APPLE := Vector2i(5, 0)
+const FLAME := Vector2i(6, 0)
+
+const EMPTY := Vector2i(5, 1)
 
 @export var color_palette: Texture2D:
 	set(value):
@@ -82,6 +83,10 @@ func has_snake() -> bool:
 
 func has_apple() -> bool:
 	return sprite_coords == APPLE
+
+
+func has_flame() -> bool:
+	return sprite_coords == FLAME
 
 
 func is_empty() -> bool:
