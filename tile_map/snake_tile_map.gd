@@ -1,10 +1,15 @@
 class_name SnakeTileMap
 extends Node2D
 
+const MOVE_TIME_SECONDS: float = 0.15
+
 @export var light_palette: Texture2D
 @export var dark_palette: Texture2D
 
-@export var board_size := Vector2i(10, 10)
+@export var board_size := Vector2i(20, 20)
+
+var move_timer: Timer
+var current_move_dir: Vector2i
 
 var snake: Array[Vector2i]
 var tiles: Array[Array]
@@ -32,22 +37,34 @@ func _ready() -> void:
 	draw_snake()
 	
 	set_tile(Vector2i(5, 5), Tile.APPLE, true, false, false)
+	
+	move_timer = Timer.new()
+	add_child(move_timer)
+	move_timer.timeout.connect(move_snake)
 
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.is_action_pressed("move_up"):
-			move_snake(Vector2i(0, -1))
+			change_snake_dir(Vector2i(0, -1))
 		elif event.is_action_pressed("move_left"):
-			move_snake(Vector2i(-1, 0))
+			change_snake_dir(Vector2i(-1, 0))
 		if event.is_action_pressed("move_down"):
-			move_snake(Vector2i(0, 1))
+			change_snake_dir(Vector2i(0, 1))
 		elif event.is_action_pressed("move_right"):
-			move_snake(Vector2i(1, 0))
+			change_snake_dir(Vector2i(1, 0))
 
 
-func move_snake(dir: Vector2i) -> void:
-	var new_head: Vector2i = snake[0] + dir
+func change_snake_dir(dir: Vector2i) -> void:
+	if current_move_dir == dir or current_move_dir == -dir:
+		return
+	
+	current_move_dir = dir
+	move_snake()
+
+
+func move_snake() -> void:
+	var new_head: Vector2i = snake[0] + current_move_dir
 	
 	if not has_tile(new_head):
 		print("Can't move off board")
@@ -59,7 +76,7 @@ func move_snake(dir: Vector2i) -> void:
 		print("Can't move into self")
 		return
 	
-	set_tile(snake[-1], Tile.EMPTY, true, false, false)
+	clear_tile(snake[-1])
 	
 	for i in range(len(snake) - 1, 0, -1):
 		snake[i] = snake[i - 1]
@@ -70,6 +87,8 @@ func move_snake(dir: Vector2i) -> void:
 	draw_head()
 	draw_segment(1, false)
 	draw_tail(len(snake) % 2 == 1)
+	
+	reset_move_timer()
 
 
 func draw_snake() -> void:
@@ -124,6 +143,10 @@ func draw_tail(is_light: bool) -> void:
 	set_tile(snake[-1], sprite_coords, is_light, flip_h, flip_v)
 
 
+func clear_tile(pos: Vector2i) -> void:
+	set_tile(pos, Tile.EMPTY, false, false, false)
+
+
 func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool, flip_h: bool, flip_v: bool
 		) -> void:
 	var tile := get_tile(pos)
@@ -133,8 +156,12 @@ func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool, flip_h: bo
 	tile.fg_sprite.flip_v = flip_v
 
 
+func reset_move_timer() -> void:
+	move_timer.start(MOVE_TIME_SECONDS)
+
+
 func has_tile(pos: Vector2i) -> bool:
-	return pos.x < 20 and pos.y < 20 and pos.x > -1 and pos.y > -1
+	return pos.x < board_size.x and pos.y < board_size.y and pos.x > -1 and pos.y > -1
 
 
 func get_tile(pos: Vector2i) -> Tile:
