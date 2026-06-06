@@ -5,6 +5,8 @@ extends Node2D
 const FG_SPRITE_SHEET: Texture2D = preload("res://tile_map/tile/sprites/tiles.png")
 const BG_SPRITE_SHEET: Texture2D = preload("res://tile_map/tile/sprites/background_tiles.png")
 
+const SNAKE_PART_COLUMNS: Array[int] = [0, 1, 2, 3, 4, 5]
+
 const CORNER_BOTTOM_RIGHT := Vector2i(0, 0)
 const CORNER_TOP_RIGHT := Vector2i(0, 1)
 const CORNER_BOTTOM_LEFT := Vector2i(1, 0)
@@ -72,3 +74,15 @@ func _ready() -> void:
 	
 	bg_sprite.use_parent_material = true
 	fg_sprite.use_parent_material = true
+
+
+func has_snake() -> bool:
+	return sprite_coords.x in SNAKE_PART_COLUMNS
+
+
+func has_apple() -> bool:
+	return sprite_coords == APPLE
+
+
+func is_empty() -> bool:
+	return sprite_coords == EMPTY
