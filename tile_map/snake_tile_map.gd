@@ -1,19 +1,25 @@
 class_name SnakeTileMap
 extends Node2D
 
+enum Level {
+	NORMAL,
+	GHOST,
+}
+
 const MOVE_TIME_SECONDS: float = 0.15
 
 @export var score_label: Label
 
-@export var light_palette: Texture2D
-@export var dark_palette: Texture2D
-
 @export var board_size := Vector2i(24, 21)
+
+var level: Level = Level.NORMAL
 
 var move_timer: Timer
 var current_move_dir: Vector2i
 
 var snake: Array[Vector2i]
+var apple: Vector2i
+
 var tiles: Array[Array]
 
 var score: int:
@@ -33,14 +39,13 @@ func _ready() -> void:
 			tile.position = pos * 16 + offset
 			tiles[y].append(tile)
 			
-			tile.color_palette = light_palette
+			tile.color_palette = get_light_palette()
 			tile.is_light_tile = (x + y) % 2 == 0
 			tile.sprite_coords = Tile.EMPTY
 			tile.fg_sprite.flip_h = false
 			tile.fg_sprite.flip_v = false
 	
-	snake = [Vector2i(11, 10), Vector2i(12, 10)]
-	draw_snake()
+	reset_snake()
 	
 	place_apple()
 	
@@ -75,13 +80,13 @@ func move_snake() -> void:
 	var new_head: Vector2i = snake[0] + current_move_dir
 	
 	if not has_tile(new_head):
-		print("Can't move off board")
+		die()
 		return
 	
 	var new_head_tile: Tile = get_tile(new_head)
 	
 	if snake[-1] != new_head and new_head_tile.has_snake():
-		print("Can't move into self")
+		die()
 		return
 	
 	var ate: bool = new_head_tile.has_apple()
@@ -93,7 +98,7 @@ func move_snake() -> void:
 	for i in range(len(snake) - 1, 0, -1):
 		snake[i] = snake[i - 1]
 		var tile: Tile = get_tile(snake[i])
-		tile.color_palette = light_palette if tile.color_palette == dark_palette else dark_palette
+		tile.color_palette = get_light_palette() if i % 2 == 0 else get_dark_palette()
 	
 	snake[0] = new_head
 	if ate:
@@ -107,6 +112,25 @@ func move_snake() -> void:
 	draw_tail(len(snake) % 2 == 1)
 	
 	reset_move_timer()
+
+
+func die() -> void:
+	match level:
+		Level.NORMAL:
+			level = Level.GHOST
+		Level.GHOST:
+			level = Level.NORMAL
+			score = 0
+	
+	move_timer.stop()
+	clear_board()
+	reset_snake()
+	place_apple()
+
+
+func reset_snake() -> void:
+	snake = [Vector2i(11, 10), Vector2i(12, 10)]
+	draw_snake()
 
 
 func draw_snake() -> void:
@@ -162,16 +186,28 @@ func draw_tail(is_light: bool) -> void:
 
 
 func place_apple() -> void:
+	apple = get_random_empty_tile()
+	set_tile(apple, Tile.APPLE, true, false, false)
+
+
+func get_random_empty_tile() -> Vector2i:
 	var pos: Vector2i
 	
 	pos.x = randi_range(0, board_size.x - 1)
 	pos.y = randi_range(0, board_size.y - 1)
 	
-	while get_tile(pos).has_snake():
+	while get_tile(pos).has_snake() or pos == apple:
 		pos.x = randi_range(0, board_size.x - 1)
 		pos.y = randi_range(0, board_size.y - 1)
 	
-	set_tile(pos, Tile.APPLE, true, false, false)
+	return pos
+
+
+func clear_board() -> void:
+	for y in range(board_size.y):
+		for x in range(board_size.x):
+			clear_tile(Vector2i(x, y))
+	snake = []
 
 
 func clear_tile(pos: Vector2i) -> void:
@@ -181,7 +217,7 @@ func clear_tile(pos: Vector2i) -> void:
 func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool, flip_h: bool, flip_v: bool
 		) -> void:
 	var tile := get_tile(pos)
-	tile.color_palette = light_palette if is_light else dark_palette
+	tile.color_palette = get_light_palette() if is_light else get_dark_palette()
 	tile.sprite_coords = sprite_coords
 	tile.fg_sprite.flip_h = flip_h
 	tile.fg_sprite.flip_v = flip_v
@@ -197,3 +233,23 @@ func has_tile(pos: Vector2i) -> bool:
 
 func get_tile(pos: Vector2i) -> Tile:
 	return tiles[pos.y][pos.x]
+
+
+func get_light_palette() -> Texture2D:
+	match level:
+		Level.NORMAL:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
+		Level.GHOST:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+	
+	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
+
+
+func get_dark_palette() -> Texture2D:
+	match level:
+		Level.NORMAL:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
+		Level.GHOST:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+	
+	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
