@@ -3,6 +3,8 @@ extends Node2D
 
 const MOVE_TIME_SECONDS: float = 0.15
 
+@export var score_label: Label
+
 @export var light_palette: Texture2D
 @export var dark_palette: Texture2D
 
@@ -13,6 +15,11 @@ var current_move_dir: Vector2i
 
 var snake: Array[Vector2i]
 var tiles: Array[Array]
+
+var score: int:
+	set(value):
+		score = value
+		score_label.text = "Score: %d" % score
 
 func _ready() -> void:
 	var offset := Vector2i(320, 180) - (board_size * 8)
@@ -40,6 +47,8 @@ func _ready() -> void:
 	move_timer = Timer.new()
 	add_child(move_timer)
 	move_timer.timeout.connect(move_snake)
+	
+	score = 0
 
 
 func _input(event: InputEvent) -> void:
@@ -90,6 +99,7 @@ func move_snake() -> void:
 	if ate:
 		snake.append(old_tale)
 		place_apple()
+		score += 1
 	
 	draw_head()
 	if len(snake) > 2:
