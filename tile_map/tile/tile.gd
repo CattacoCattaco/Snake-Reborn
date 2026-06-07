@@ -27,7 +27,7 @@ const EMPTY := Vector2i(5, 1)
 	set(value):
 		if not material or material is not ShaderMaterial:
 			material = ShaderMaterial.new()
-			material.shader = preload("res://tile_map/tile/tile.gdshader")
+			material.shader = preload("res://recolor/recolor.gdshader")
 		
 		color_palette = value
 		material.set_shader_parameter("palette", value)

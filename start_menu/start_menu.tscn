@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://837kgiieax7j"]
+
+[ext_resource type="Shader" uid="uid://i5dexvhnvoaj" path="res://recolor/recolor.gdshader" id="1_pelf0"]
+[ext_resource type="Script" uid="uid://cmm3xxu43gxfq" path="res://start_menu/start_menu.gd" id="1_unh8j"]
+[ext_resource type="PackedScene" uid="uid://d0t42184sogyl" path="res://main.tscn" id="2_0uyxu"]
+[ext_resource type="Texture2D" uid="uid://cxwq4c07qitj1" path="res://tile_map/tile/color_palettes/snake_colors_light.png" id="2_x6gm5"]
+[ext_resource type="Texture2D" uid="uid://cs1s632kod3sm" path="res://start_menu/title_screen.png" id="3_unh8j"]
+[ext_resource type="Shader" uid="uid://cb4cg1ippbe5k" path="res://recolor/enter_to_start.gdshader" id="5_dkj6a"]
+[ext_resource type="Texture2D" uid="uid://d3542fxevlptw" path="res://start_menu/press_enter_to_start.png" id="6_0uyxu"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dkj6a"]
+shader = ExtResource("1_pelf0")
+shader_parameter/palette = ExtResource("2_x6gm5")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0h8rd"]
+shader = ExtResource("5_dkj6a")
+shader_parameter/palette = ExtResource("2_x6gm5")
+shader_parameter/precision = 25
+
+[node name="StartMenu" type="Control" unique_id=1309377605 node_paths=PackedStringArray("title_screen", "press_enter_to_start")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 2
+script = ExtResource("1_unh8j")
+main_scene = ExtResource("2_0uyxu")
+title_screen = NodePath("TitleScreen")
+press_enter_to_start = NodePath("PressEnterToStart")
+
+[node name="TitleScreen" type="Sprite2D" parent="." unique_id=352064342]
+material = SubResource("ShaderMaterial_dkj6a")
+texture = ExtResource("3_unh8j")
+centered = false
+
+[node name="PressEnterToStart" type="Sprite2D" parent="." unique_id=275594828]
+material = SubResource("ShaderMaterial_0h8rd")
+position = Vector2(248, 320)
+texture = ExtResource("6_0uyxu")
+centered = false

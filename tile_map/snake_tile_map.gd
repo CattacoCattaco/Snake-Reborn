@@ -4,6 +4,7 @@ extends Node2D
 enum Level {
 	NORMAL,
 	GHOST,
+	LEVEL_COUNT,
 }
 
 const MOVE_TIME_SECONDS: float = 0.125
@@ -26,6 +27,27 @@ var score: int:
 	set(value):
 		score = value
 		score_label.text = "Score: %d" % score
+
+
+static func get_level_light_palette(comp_level: Level) -> Texture2D:
+	match comp_level:
+		Level.NORMAL:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
+		Level.GHOST:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+	
+	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
+
+
+static func get_level_dark_palette(comp_level: Level) -> Texture2D:
+	match comp_level:
+		Level.NORMAL:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
+		Level.GHOST:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+	
+	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
+
 
 func _ready() -> void:
 	var offset := Vector2i(320, 180) - (board_size * 8)
@@ -256,20 +278,8 @@ func get_tile(pos: Vector2i) -> Tile:
 
 
 func get_light_palette() -> Texture2D:
-	match level:
-		Level.NORMAL:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
-		Level.GHOST:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
-	
-	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
+	return get_level_light_palette(level)
 
 
 func get_dark_palette() -> Texture2D:
-	match level:
-		Level.NORMAL:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
-		Level.GHOST:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
-	
-	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
+	return get_level_dark_palette(level)

@@ -8,7 +8,7 @@ void vertex() {
 
 void fragment() {
 	float alpha = COLOR.a;
-	COLOR = texture(palette, vec2(COLOR.r, 0));
+	COLOR = texture(palette, vec2((floor(COLOR.r * 5.0) + 0.5) / 5.0, 0));
 	COLOR.a = alpha;
 }
 
