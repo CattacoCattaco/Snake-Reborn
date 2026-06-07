@@ -111,6 +111,16 @@ func change_snake_dir(dir: Vector2i) -> void:
 	if current_move_dir == dir or (current_move_dir == -dir and len(snake) > 2):
 		return
 	
+	match dir:
+		Vector2i(0, -1):
+			play_sound(preload("res://tile_map/sound_effects/turn_up.wav"))
+		Vector2i(-1, 0):
+			play_sound(preload("res://tile_map/sound_effects/turn_left.wav"))
+		Vector2i(0, 1):
+			play_sound(preload("res://tile_map/sound_effects/turn_down.wav"))
+		Vector2i(1, 0):
+			play_sound(preload("res://tile_map/sound_effects/turn_right.wav"))
+	
 	current_move_dir = dir
 	move_snake()
 
@@ -136,9 +146,12 @@ func move_snake() -> void:
 	
 	snake[0] = new_head
 	if ate:
+		play_sound(preload("res://tile_map/sound_effects/eat.wav"))
+		
 		snake.append(old_tale)
 		place_apple()
 		score += level + 1
+		
 		if level == Level.GHOST:
 			place_flame()
 	
@@ -170,8 +183,10 @@ func die() -> void:
 		Level.LEVEL_COUNT - 1:
 			level = Level.NORMAL
 			score = 0
+			play_sound(preload("res://tile_map/sound_effects/die.wav"))
 		_:
 			level = (level + 1) as Level
+			play_sound(preload("res://tile_map/sound_effects/rebirth.wav"))
 	
 	move_timer.stop()
 	current_move_dir = Vector2i(0, 0)
@@ -333,3 +348,11 @@ func get_light_palette() -> Texture2D:
 
 func get_dark_palette() -> Texture2D:
 	return get_level_dark_palette(level)
+
+
+func play_sound(sound: AudioStreamWAV) -> void:
+	var sound_effect_player := AudioStreamPlayer.new()
+	add_child(sound_effect_player)
+	sound_effect_player.stream = sound
+	sound_effect_player.play()
+	sound_effect_player.finished.connect(sound_effect_player.queue_free)
