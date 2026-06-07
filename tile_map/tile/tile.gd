@@ -20,6 +20,7 @@ const VERTICAL_ROW: int = 1
 
 const APPLE := Vector2i(5, 0)
 const FLAME := Vector2i(6, 0)
+const WALL := Vector2i(6, 1)
 
 const EMPTY := Vector2i(5, 1)
 
@@ -75,6 +76,10 @@ func _ready() -> void:
 	
 	bg_sprite.use_parent_material = true
 	fg_sprite.use_parent_material = true
+
+
+func is_safe() -> bool:
+	return is_empty() or has_apple()
 
 
 func has_snake() -> bool:

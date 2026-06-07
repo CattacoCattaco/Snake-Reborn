@@ -69,6 +69,7 @@ func _ready() -> void:
 	
 	reset_snake()
 	
+	place_walls()
 	place_apple()
 	
 	bg.color = get_light_palette().get_image().get_pixel(1, 1)
@@ -103,14 +104,9 @@ func change_snake_dir(dir: Vector2i) -> void:
 
 func move_snake() -> void:
 	var new_head: Vector2i = snake[0] + current_move_dir
-	
-	if not has_tile(new_head):
-		die()
-		return
-	
 	var new_head_tile: Tile = get_tile(new_head)
 	
-	if snake[-1] != new_head and (new_head_tile.has_snake() or new_head_tile.has_flame()):
+	if snake[-1] != new_head and not new_head_tile.is_safe():
 		die()
 		return
 	
@@ -157,6 +153,7 @@ func die() -> void:
 	
 	clear_board()
 	reset_snake()
+	place_walls()
 	place_apple()
 	
 	if level == Level.GHOST:
@@ -220,14 +217,36 @@ func draw_tail(is_light: bool) -> void:
 	set_tile(snake[-1], sprite_coords, is_light, flip_h, flip_v)
 
 
+func place_walls() -> void:
+	for x in [0, board_size.x - 1]:
+		for y in range(board_size.y):
+			var pos := Vector2i(x, y)
+			if level == Level.GHOST:
+				place_flame_at(pos)
+			else:
+				set_tile(pos, Tile.WALL)
+	
+	for y in [0, board_size.y - 1]:
+		for x in range(board_size.x):
+			var pos := Vector2i(x, y)
+			if level == Level.GHOST:
+				place_flame_at(pos)
+			else:
+				set_tile(pos, Tile.WALL)
+
+
 func place_apple() -> void:
 	var pos: Vector2i = get_random_empty_tile()
-	set_tile(pos, Tile.APPLE, true, false, false)
+	set_tile(pos, Tile.APPLE)
 
 
 func place_flame() -> void:
 	var pos: Vector2i = get_random_empty_tile()
-	set_tile(pos, Tile.FLAME, true, false, false)
+	place_flame_at(pos)
+
+
+func place_flame_at(pos: Vector2i) -> void:
+	set_tile(pos, Tile.FLAME)
 	var tile: Tile = get_tile(pos)
 	tile.color_palette = preload("res://tile_map/tile/color_palettes/fire_colors.png")
 
@@ -253,11 +272,11 @@ func clear_board() -> void:
 
 
 func clear_tile(pos: Vector2i) -> void:
-	set_tile(pos, Tile.EMPTY, false, false, false)
+	set_tile(pos, Tile.EMPTY)
 
 
-func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool, flip_h: bool, flip_v: bool
-		) -> void:
+func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool = true, flip_h: bool = false,
+		flip_v: bool = false) -> void:
 	var tile := get_tile(pos)
 	tile.color_palette = get_light_palette() if is_light else get_dark_palette()
 	tile.sprite_coords = sprite_coords
