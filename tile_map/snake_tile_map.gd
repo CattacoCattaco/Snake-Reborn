@@ -130,7 +130,7 @@ func move_snake() -> void:
 	if ate:
 		snake.append(old_tale)
 		place_apple()
-		score += 1
+		score += level + 1
 		if level == Level.GHOST:
 			place_flame()
 	
