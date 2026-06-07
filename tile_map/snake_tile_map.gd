@@ -4,6 +4,7 @@ extends Node2D
 enum Level {
 	NORMAL,
 	GHOST,
+	CONFUSED,
 	LEVEL_COUNT,
 }
 
@@ -35,6 +36,8 @@ static func get_level_light_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
 		Level.GHOST:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+		Level.CONFUSED:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_light.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
 
@@ -45,6 +48,8 @@ static func get_level_dark_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
 		Level.GHOST:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+		Level.CONFUSED:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_dark.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
 
@@ -139,11 +144,11 @@ func move_snake() -> void:
 
 func die() -> void:
 	match level:
-		Level.NORMAL:
-			level = Level.GHOST
-		Level.GHOST:
+		Level.LEVEL_COUNT - 1:
 			level = Level.NORMAL
 			score = 0
+		_:
+			level = (level + 1) as Level
 	
 	move_timer.stop()
 	current_move_dir = Vector2i(0, 0)
@@ -285,7 +290,10 @@ func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool = true, fli
 
 
 func reset_move_timer() -> void:
-	move_timer.start(MOVE_TIME_SECONDS)
+	if level == Level.CONFUSED:
+		move_timer.start(MOVE_TIME_SECONDS ** randf_range(0.2, 1.3))
+	else:
+		move_timer.start(MOVE_TIME_SECONDS)
 
 
 func has_tile(pos: Vector2i) -> bool:
