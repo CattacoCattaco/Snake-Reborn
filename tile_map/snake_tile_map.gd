@@ -5,16 +5,16 @@ enum Level {
 	NORMAL,
 	GHOST,
 	CONFUSED,
-	PHANTOM,
+	BLINDNESS,
 	LEVEL_COUNT,
 }
 
 const MOVE_TIME_SECONDS: float = 0.125
-const PHANTOM_DURATION: int = 3
+const BLINDNESS_DURATION: int = 3
 
 @export var bg: ColorRect
 @export var score_label: Label
-@export var phantom_cover: ColorRect
+@export var blindness_cover: ColorRect
 @export var level_transition_screen: ColorRect
 @export var level_transition_label: Label
 
@@ -25,7 +25,7 @@ var level: Level = Level.NORMAL
 var move_timer: Timer
 var transition_timer: Timer
 var current_move_dir: Vector2i
-var phantom_countdown: int = PHANTOM_DURATION
+var blindness_countdown: int = BLINDNESS_DURATION
 
 var snake: Array[Vector2i]
 
@@ -45,7 +45,7 @@ static func get_level_light_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_light.png")
-		Level.PHANTOM:
+		Level.BLINDNESS:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_phantom_light.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
@@ -59,7 +59,7 @@ static func get_level_dark_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_dark.png")
-		Level.PHANTOM:
+		Level.BLINDNESS:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_phantom_dark.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
@@ -73,8 +73,8 @@ static func get_level_name(comp_level: Level) -> String:
 			return "Ghost"
 		Level.CONFUSED:
 			return "Confused"
-		Level.PHANTOM:
-			return "Phantom"
+		Level.BLINDNESS:
+			return "Blindness"
 	
 	return "Normal"
 
@@ -189,24 +189,24 @@ func move_snake() -> void:
 		draw_segment(1, false)
 	draw_tail(len(snake) % 2 == 1)
 	
-	if level == Level.PHANTOM:
-		phantom_countdown -= 1
-		if phantom_countdown == 0:
-			phantom_countdown = PHANTOM_DURATION
+	if level == Level.BLINDNESS:
+		blindness_countdown -= 1
+		if blindness_countdown == 0:
+			blindness_countdown = BLINDNESS_DURATION
 			
-			if phantom_cover.visible:
-				phantom_cover.hide()
+			if blindness_cover.visible:
+				blindness_cover.hide()
 			else:
-				phantom_cover.show()
+				blindness_cover.show()
 	
 	reset_move_timer()
 
 
 func die() -> void:
-	if level == Level.PHANTOM:
-		phantom_countdown = PHANTOM_DURATION
+	if level == Level.BLINDNESS:
+		blindness_countdown = BLINDNESS_DURATION
 		
-		phantom_cover.hide()
+		blindness_cover.hide()
 	
 	match level:
 		Level.LEVEL_COUNT - 1:

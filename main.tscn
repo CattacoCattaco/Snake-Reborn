@@ -38,7 +38,7 @@ offset_top = 20.0
 text = "Score: 1,000,000"
 label_settings = SubResource("LabelSettings_7mycd")
 
-[node name="PhantomCover" type="ColorRect" parent="UI" unique_id=1977779541]
+[node name="BlindnessCover" type="ColorRect" parent="UI" unique_id=1977779541]
 visible = false
 z_index = 1
 layout_mode = 1
@@ -76,10 +76,10 @@ label_settings = SubResource("LabelSettings_0xm2m")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="SnakeTileMap" type="Node2D" parent="." unique_id=451807890 node_paths=PackedStringArray("bg", "score_label", "phantom_cover", "level_transition_screen", "level_transition_label")]
+[node name="SnakeTileMap" type="Node2D" parent="." unique_id=451807890 node_paths=PackedStringArray("bg", "score_label", "blindness_cover", "level_transition_screen", "level_transition_label")]
 script = ExtResource("1_ig7tw")
 bg = NodePath("../UI/BG")
 score_label = NodePath("../UI/ScoreLabel")
-phantom_cover = NodePath("../UI/PhantomCover")
+blindness_cover = NodePath("../UI/BlindnessCover")
 level_transition_screen = NodePath("../UI/LevelTransition")
 level_transition_label = NodePath("../UI/LevelTransition/LevelTransitionLabel")
