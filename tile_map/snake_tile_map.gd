@@ -15,12 +15,15 @@ const PHANTOM_DURATION: int = 3
 @export var bg: ColorRect
 @export var score_label: Label
 @export var phantom_cover: ColorRect
+@export var level_transition_screen: ColorRect
+@export var level_transition_label: Label
 
 @export var board_size := Vector2i(24, 21)
 
 var level: Level = Level.NORMAL
 
 var move_timer: Timer
+var transition_timer: Timer
 var current_move_dir: Vector2i
 var phantom_countdown: int = PHANTOM_DURATION
 
@@ -62,6 +65,20 @@ static func get_level_dark_palette(comp_level: Level) -> Texture2D:
 	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
 
 
+static func get_level_name(comp_level: Level) -> String:
+	match comp_level:
+		Level.NORMAL:
+			return "Normal"
+		Level.GHOST:
+			return "Ghost"
+		Level.CONFUSED:
+			return "Confused"
+		Level.PHANTOM:
+			return "Phantom"
+	
+	return "Normal"
+
+
 func _ready() -> void:
 	var offset := Vector2i(320, 180) - (board_size * 8)
 	for y in range(board_size.y):
@@ -90,7 +107,12 @@ func _ready() -> void:
 	
 	move_timer = Timer.new()
 	add_child(move_timer)
+	move_timer.one_shot = true
 	move_timer.timeout.connect(move_snake)
+	
+	transition_timer = Timer.new()
+	add_child(transition_timer)
+	transition_timer.one_shot = true
 	
 	score = 0
 
@@ -105,9 +127,16 @@ func _input(event: InputEvent) -> void:
 			change_snake_dir(Vector2i(0, 1))
 		elif event.is_action_pressed("move_right"):
 			change_snake_dir(Vector2i(1, 0))
+		elif event.is_action_pressed("start"):
+			if transition_timer.time_left > 0:
+				transition_timer.stop()
+				transition_timer.timeout.emit()
 
 
 func change_snake_dir(dir: Vector2i) -> void:
+	if transition_timer.time_left > 0.0:
+		return
+	
 	if current_move_dir == dir or (current_move_dir == -dir and len(snake) > 2):
 		return
 	
@@ -188,6 +217,9 @@ func die() -> void:
 			level = (level + 1) as Level
 			play_sound(preload("res://tile_map/sound_effects/rebirth.wav"))
 	
+	level_transition_screen.show()
+	level_transition_label.text = get_level_name(level)
+	
 	move_timer.stop()
 	current_move_dir = Vector2i(0, 0)
 	
@@ -201,6 +233,8 @@ func die() -> void:
 	
 	if level == Level.GHOST:
 		place_flame()
+	
+	do_transition_time()
 
 
 func reset_snake() -> void:
@@ -356,3 +390,9 @@ func play_sound(sound: AudioStreamWAV) -> void:
 	sound_effect_player.stream = sound
 	sound_effect_player.play()
 	sound_effect_player.finished.connect(sound_effect_player.queue_free)
+
+
+func do_transition_time() -> void:
+	transition_timer.start(1.5)
+	await transition_timer.timeout
+	level_transition_screen.hide()

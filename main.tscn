@@ -8,6 +8,11 @@ font = ExtResource("4_lquwl")
 font_size = 9
 font_color = Color(0, 0, 0, 1)
 
+[sub_resource type="LabelSettings" id="LabelSettings_0xm2m"]
+font = ExtResource("4_lquwl")
+font_size = 27
+font_color = Color(0, 0, 0, 1)
+
 [node name="Main" type="Node2D" unique_id=475188452]
 
 [node name="UI" type="Control" parent="." unique_id=1593183884]
@@ -43,8 +48,38 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SnakeTileMap" type="Node2D" parent="." unique_id=451807890 node_paths=PackedStringArray("bg", "score_label", "phantom_cover")]
+[node name="LevelTransition" type="ColorRect" parent="UI" unique_id=1694751762]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LevelTransitionLabel" type="Label" parent="UI/LevelTransition" unique_id=1338562304]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -36.0
+offset_top = -4.5
+offset_right = 36.0
+offset_bottom = 4.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "Blindness"
+label_settings = SubResource("LabelSettings_0xm2m")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SnakeTileMap" type="Node2D" parent="." unique_id=451807890 node_paths=PackedStringArray("bg", "score_label", "phantom_cover", "level_transition_screen", "level_transition_label")]
 script = ExtResource("1_ig7tw")
 bg = NodePath("../UI/BG")
 score_label = NodePath("../UI/ScoreLabel")
 phantom_cover = NodePath("../UI/PhantomCover")
+level_transition_screen = NodePath("../UI/LevelTransition")
+level_transition_label = NodePath("../UI/LevelTransition/LevelTransitionLabel")
