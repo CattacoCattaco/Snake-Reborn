@@ -10,7 +10,7 @@ enum Level {
 }
 
 const MOVE_TIME_SECONDS: float = 0.125
-const PHANTOM_DURATION: int = 5
+const PHANTOM_DURATION: int = 3
 
 @export var bg: ColorRect
 @export var score_label: Label
