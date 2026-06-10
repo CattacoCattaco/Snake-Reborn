@@ -26,7 +26,6 @@ func _ready() -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.is_action_pressed("start"):
-			print("hi")
 			var main: Node2D = main_scene.instantiate()
 			get_tree().root.add_child(main)
 			queue_free()

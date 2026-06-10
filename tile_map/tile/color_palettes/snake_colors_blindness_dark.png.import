@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kb1qq5cy38if"
-path="res://.godot/imported/snake_colors_phantom_dark.png-47768849c9e51df808131375532c616c.ctex"
+uid="uid://cy4dx51fdiupg"
+path="res://.godot/imported/snake_colors_blindness_dark.png-54f99db19f52d8fcd7774eed4d8053c3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tile_map/tile/color_palettes/snake_colors_phantom_dark.png"
-dest_files=["res://.godot/imported/snake_colors_phantom_dark.png-47768849c9e51df808131375532c616c.ctex"]
+source_file="res://tile_map/tile/color_palettes/snake_colors_blindness_dark.png"
+dest_files=["res://.godot/imported/snake_colors_blindness_dark.png-54f99db19f52d8fcd7774eed4d8053c3.ctex"]
 
 [params]
 

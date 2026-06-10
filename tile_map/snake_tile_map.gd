@@ -4,8 +4,9 @@ extends Node2D
 enum Level {
 	NORMAL,
 	GHOST,
-	CONFUSED,
+	LAGGY,
 	BLINDNESS,
+	CONFUSED,
 	LEVEL_COUNT,
 }
 
@@ -20,7 +21,7 @@ const BLINDNESS_DURATION: int = 3
 
 @export var board_size := Vector2i(24, 21)
 
-var level: Level = Level.NORMAL
+var level: Level = Level.CONFUSED
 
 var move_timer: Timer
 var transition_timer: Timer
@@ -43,10 +44,12 @@ static func get_level_light_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
 		Level.GHOST:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+		Level.LAGGY:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_light.png")
+		Level.BLINDNESS:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_light.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_light.png")
-		Level.BLINDNESS:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_phantom_light.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
 
@@ -57,10 +60,12 @@ static func get_level_dark_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
 		Level.GHOST:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
+		Level.LAGGY:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_dark.png")
+		Level.BLINDNESS:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_dark.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_dark.png")
-		Level.BLINDNESS:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_phantom_dark.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
 
@@ -71,10 +76,12 @@ static func get_level_name(comp_level: Level) -> String:
 			return "Normal"
 		Level.GHOST:
 			return "Ghost"
-		Level.CONFUSED:
-			return "Confused"
+		Level.LAGGY:
+			return "Laggy"
 		Level.BLINDNESS:
 			return "Blindness"
+		Level.CONFUSED:
+			return "Confused"
 	
 	return "Normal"
 
@@ -151,10 +158,27 @@ func change_snake_dir(dir: Vector2i) -> void:
 			play_sound(preload("res://tile_map/sound_effects/turn_right.wav"))
 	
 	current_move_dir = dir
-	move_snake()
+	move_snake(true)
 
 
-func move_snake() -> void:
+func move_snake(from_turn: bool = false) -> void:
+	if not from_turn and level == Level.CONFUSED:
+		if randf() < 0.1:
+			var safe_dirs: Array[Vector2i] = []
+			for dir in [Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 0)]:
+				if dir == current_move_dir:
+					continue
+				
+				if dir == -current_move_dir and len(snake) > 2:
+					continue
+				
+				if get_tile(snake[0] + dir).is_safe():
+					safe_dirs.append(dir)
+			
+			if safe_dirs:
+				change_snake_dir(safe_dirs.pick_random())
+				return
+	
 	var new_head: Vector2i = snake[0] + current_move_dir
 	var new_head_tile: Tile = get_tile(new_head)
 	
@@ -362,7 +386,7 @@ func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool = true, fli
 
 
 func reset_move_timer() -> void:
-	if level == Level.CONFUSED:
+	if level == Level.LAGGY:
 		move_timer.start(MOVE_TIME_SECONDS ** randf_range(0.2, 1.3))
 	else:
 		move_timer.start(MOVE_TIME_SECONDS)
