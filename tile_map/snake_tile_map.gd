@@ -7,11 +7,14 @@ enum Level {
 	LAGGY,
 	BLINDNESS,
 	CONFUSED,
+	MAZE,
 	LEVEL_COUNT,
 }
 
 const MOVE_TIME_SECONDS: float = 0.125
 const BLINDNESS_DURATION: int = 3
+
+const ORTHOGONALS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 0)]
 
 @export var bg: ColorRect
 @export var score_label: Label
@@ -19,9 +22,9 @@ const BLINDNESS_DURATION: int = 3
 @export var level_transition_screen: ColorRect
 @export var level_transition_label: Label
 
-@export var board_size := Vector2i(24, 21)
+@export var board_size := Vector2i(26, 21)
 
-var level: Level = Level.CONFUSED
+var level: Level = Level.MAZE
 
 var move_timer: Timer
 var transition_timer: Timer
@@ -48,6 +51,8 @@ static func get_level_light_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_light.png")
 		Level.BLINDNESS:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_light.png")
+		Level.MAZE:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_light.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_light.png")
 	
@@ -64,6 +69,8 @@ static func get_level_dark_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_dark.png")
 		Level.BLINDNESS:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_dark.png")
+		Level.MAZE:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_dark.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_dark.png")
 	
@@ -80,6 +87,8 @@ static func get_level_name(comp_level: Level) -> String:
 			return "Laggy"
 		Level.BLINDNESS:
 			return "Blindness"
+		Level.MAZE:
+			return "Maze"
 		Level.CONFUSED:
 			return "Confused"
 	
@@ -165,7 +174,7 @@ func move_snake(from_turn: bool = false) -> void:
 	if not from_turn and level == Level.CONFUSED:
 		if randf() < 0.1:
 			var safe_dirs: Array[Vector2i] = []
-			for dir in [Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 0)]:
+			for dir in ORTHOGONALS:
 				if dir == current_move_dir:
 					continue
 				
@@ -262,7 +271,13 @@ func die() -> void:
 
 
 func reset_snake() -> void:
-	snake = [Vector2i(11, 10), Vector2i(12, 10)]
+	var row: int = floori(board_size.y / 2.0)
+	var right_column: int = ceili(board_size.x / 2.0)
+	
+	if level == Level.MAZE:
+		row -= 1
+	
+	snake = [Vector2i(right_column - 1, row), Vector2i(right_column, row)]
 	draw_snake()
 
 
@@ -321,19 +336,127 @@ func draw_tail(is_light: bool) -> void:
 func place_walls() -> void:
 	for x in [0, board_size.x - 1]:
 		for y in range(board_size.y):
-			var pos := Vector2i(x, y)
-			if level == Level.GHOST:
-				place_flame_at(pos)
-			else:
-				set_tile(pos, Tile.WALL)
+			place_wall(Vector2i(x, y))
 	
 	for y in [0, board_size.y - 1]:
 		for x in range(board_size.x):
-			var pos := Vector2i(x, y)
-			if level == Level.GHOST:
-				place_flame_at(pos)
+			place_wall(Vector2i(x, y))
+	
+	if level == Level.MAZE:
+		var center_right: int = ceili(board_size.x / 2.0)
+		for x in [center_right - 1, center_right]:
+			for y in range(0, board_size.y, 2):
+				place_wall(Vector2i(x, y))
+		
+		create_maze_half(0, center_right - 1)
+		create_maze_half(center_right, board_size.x - 1)
+
+
+func create_maze_half(left_column: int, right_column: int) -> void:
+	for x in range(left_column + 2, right_column, 2):
+		for y in range(1, board_size.y - 1):
+			place_wall(Vector2i(x, y))
+	
+	for x in range(left_column, right_column):
+		for y in range(2, board_size.y - 1, 2):
+			place_wall(Vector2i(x, y))
+	
+	var path: Array[Vector2i] = []
+	var unused_tiles: Array[Vector2i] = []
+	var dead_ends: Array[Vector2i] = []
+	
+	for x in range(left_column + 1, right_column, 2):
+		for y in range(1, board_size.y - 1, 2):
+			unused_tiles.append(Vector2i(x, y))
+	
+	path.append(unused_tiles.pop_back())
+	dead_ends.append(path[0])
+	
+	while unused_tiles:
+		var valid_dirs: Array[Vector2i] = []
+		for dir in ORTHOGONALS:
+			var neighbor: Vector2i = path[-1] + dir * 2
+			var wall: Vector2i = path[-1] + dir
+			if neighbor in unused_tiles or (neighbor in dead_ends and get_tile(wall).has_wall()):
+				valid_dirs.append(dir)
+		
+		if not valid_dirs:
+			dead_ends.append(path[-1])
+			path.append(unused_tiles.pop_back())
+			dead_ends.append(path[-1])
+		else:
+			var dir: Vector2i = valid_dirs.pick_random()
+			var neighbor: Vector2i = path[-1] + dir * 2
+			
+			clear_tile(path[-1] + dir)
+			
+			if neighbor in path:
+				dead_ends.erase(neighbor)
+				path.append(unused_tiles.pop_back())
+				dead_ends.append(path[-1])
 			else:
-				set_tile(pos, Tile.WALL)
+				unused_tiles.erase(neighbor)
+				path.append(neighbor)
+	
+	dead_ends.append(path[-1])
+	
+	var center_right: int = ceili(board_size.x / 2.0)
+	
+	for dead_end in dead_ends:
+		var valid_dirs: Array[Vector2i] = []
+		for dir in ORTHOGONALS:
+			var neighbor: Vector2i = dead_end + dir * 2
+			var wall: Vector2i = dead_end + dir
+			
+			var is_in_center = neighbor.x == center_right or neighbor.x == center_right - 1
+			if has_tile(neighbor) and (get_tile(wall).has_wall()) and (not is_in_center):
+				valid_dirs.append(dir)
+		
+		clear_tile(dead_end + valid_dirs.pick_random())
+	
+	var connected_tiles: Array[Vector2i] = []
+	var disconnected_tiles: Array[Vector2i] = path.duplicate()
+	var disconnected_tiles_for_later: Array[Vector2i] = []
+	connected_tiles.append(disconnected_tiles.pop_back())
+	
+	while disconnected_tiles or disconnected_tiles_for_later:
+		if not disconnected_tiles:
+			disconnected_tiles = disconnected_tiles_for_later
+			disconnected_tiles_for_later = []
+		
+		var pos: Vector2i = disconnected_tiles[-1]
+		
+		var pos_is_connected: bool = false
+		for dir in ORTHOGONALS:
+			var neighbor: Vector2i = pos + dir * 2
+			var wall: Vector2i = pos + dir
+			
+			if (not get_tile(wall).has_wall()) and neighbor in connected_tiles:
+				pos_is_connected = true
+				break
+		
+		if pos_is_connected:
+			connected_tiles.append(disconnected_tiles.pop_back())
+		else:
+			for dir in ORTHOGONALS:
+				var neighbor: Vector2i = pos + dir * 2
+				var wall: Vector2i = pos + dir
+				
+				if get_tile(wall).has_wall() and neighbor in connected_tiles:
+					clear_tile(wall)
+					connected_tiles.append(disconnected_tiles.pop_back())
+					pos_is_connected = true
+					break
+			
+			if not pos_is_connected:
+				disconnected_tiles_for_later.append(disconnected_tiles.pop_back())
+
+
+func place_wall(pos: Vector2i) -> void:
+	if level == Level.GHOST:
+		place_flame_at(pos)
+	else:
+		set_tile(pos, Tile.WALL)
 
 
 func place_apple() -> void:

@@ -90,6 +90,10 @@ func has_apple() -> bool:
 	return sprite_coords == APPLE
 
 
+func has_wall() -> bool:
+	return sprite_coords == WALL or has_flame()
+
+
 func has_flame() -> bool:
 	return sprite_coords == FLAME
 
