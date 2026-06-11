@@ -13,6 +13,7 @@ enum Level {
 
 const MOVE_TIME_SECONDS: float = 0.125
 const BLINDNESS_DURATION: int = 3
+const CONFUSED_CHANCE: float = 0.1
 
 const ORTHOGONALS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 0)]
 
@@ -24,7 +25,7 @@ const ORTHOGONALS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(-1, 0), Vector2i
 
 @export var board_size := Vector2i(26, 21)
 
-var level: Level = Level.MAZE
+var level: Level = Level.NORMAL
 
 var move_timer: Timer
 var transition_timer: Timer
@@ -172,7 +173,7 @@ func change_snake_dir(dir: Vector2i) -> void:
 
 func move_snake(from_turn: bool = false) -> void:
 	if not from_turn and level == Level.CONFUSED:
-		if randf() < 0.1:
+		if randf() < CONFUSED_CHANCE:
 			var safe_dirs: Array[Vector2i] = []
 			for dir in ORTHOGONALS:
 				if dir == current_move_dir:
