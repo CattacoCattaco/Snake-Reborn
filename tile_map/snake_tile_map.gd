@@ -131,7 +131,7 @@ func move_snake(from_turn: bool = false) -> void:
 	var new_head: Vector2i = snake[0] + current_move_dir
 	var new_head_tile: Tile = get_tile(new_head)
 	
-	if snake[-1] != new_head and not new_head_tile.is_safe():
+	if (snake[-1] != new_head or level.do_unconditional_growth) and not new_head_tile.is_safe():
 		die()
 		return
 	
