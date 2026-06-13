@@ -1,6 +1,8 @@
 class_name StartMenu
 extends Control
 
+const LevelType = LevelSettings.LevelType
+
 @export var main_scene: PackedScene
 
 @export var title_screen: Sprite2D
@@ -8,9 +10,8 @@ extends Control
 
 
 func _ready() -> void:
-	var level: SnakeTileMap.Level = (randi_range(0, SnakeTileMap.Level.LEVEL_COUNT - 1)
-			as SnakeTileMap.Level)
-	var palette: Texture2D = SnakeTileMap.get_level_light_palette(level)
+	var level: LevelType = randi_range(0, LevelType.COUNT - 1) as LevelType
+	var palette: Texture2D = LevelSettings.get_level_type_light_palette(level)
 	
 	title_screen.material = ShaderMaterial.new()
 	title_screen.material.shader = preload("res://recolor/recolor.gdshader")

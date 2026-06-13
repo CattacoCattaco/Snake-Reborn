@@ -1,20 +1,7 @@
 class_name SnakeTileMap
 extends Node2D
 
-enum Level {
-	NORMAL,
-	GHOST,
-	LAGGY,
-	BLINDNESS,
-	GROWTH_SPURT,
-	CONFUSED,
-	MAZE,
-	LEVEL_COUNT,
-}
-
 const MOVE_TIME_SECONDS: float = 0.125
-const BLINDNESS_DURATION: int = 3
-const CONFUSED_CHANCE: float = 0.1
 
 const ORTHOGONALS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 0)]
 
@@ -26,12 +13,14 @@ const ORTHOGONALS: Array[Vector2i] = [Vector2i(0, -1), Vector2i(-1, 0), Vector2i
 
 @export var board_size := Vector2i(26, 21)
 
-var level: Level = Level.NORMAL
+var level_num: int = 0
+var level_sequence: Array[LevelSettings] = LevelSettings.DEFAULT_LEVEL_SEQUENCE
+var level: LevelSettings = level_sequence[level_num]
 
 var move_timer: Timer
 var transition_timer: Timer
 var current_move_dir: Vector2i
-var blindness_countdown: int = BLINDNESS_DURATION
+var blindness_countdown: int = 0
 
 var snake: Array[Vector2i]
 
@@ -41,66 +30,6 @@ var score: int:
 	set(value):
 		score = value
 		score_label.text = "Score: %d" % score
-
-
-static func get_level_light_palette(comp_level: Level) -> Texture2D:
-	match comp_level:
-		Level.NORMAL:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
-		Level.GHOST:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
-		Level.LAGGY:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_light.png")
-		Level.BLINDNESS:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_light.png")
-		Level.GROWTH_SPURT:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_growth_spurt_light.png")
-		Level.CONFUSED:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_light.png")
-		Level.MAZE:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_light.png")
-	
-	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
-
-
-static func get_level_dark_palette(comp_level: Level) -> Texture2D:
-	match comp_level:
-		Level.NORMAL:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
-		Level.GHOST:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_ghost.png")
-		Level.LAGGY:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_dark.png")
-		Level.BLINDNESS:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_dark.png")
-		Level.GROWTH_SPURT:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_growth_spurt_dark.png")
-		Level.CONFUSED:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_dark.png")
-		Level.MAZE:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_dark.png")
-	
-	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
-
-
-static func get_level_name(comp_level: Level) -> String:
-	match comp_level:
-		Level.NORMAL:
-			return "Normal"
-		Level.GHOST:
-			return "Ghost"
-		Level.LAGGY:
-			return "Laggy"
-		Level.BLINDNESS:
-			return "Blindness"
-		Level.GROWTH_SPURT:
-			return "Growth Spurt"
-		Level.CONFUSED:
-			return "Confused"
-		Level.MAZE:
-			return "Maze"
-	
-	return "Normal"
 
 
 func _ready() -> void:
@@ -139,6 +68,7 @@ func _ready() -> void:
 	transition_timer.one_shot = true
 	
 	score = 0
+	blindness_countdown = level.blindness_duration
 
 
 func _input(event: InputEvent) -> void:
@@ -163,7 +93,7 @@ func change_snake_dir(dir: Vector2i) -> void:
 	
 	var is_start_turn_around: bool = current_move_dir == Vector2i(0, 0) and dir == Vector2i(1, 0)
 	var is_turn_around_attempt: bool = current_move_dir == -dir or is_start_turn_around
-	var can_turn_around: bool = len(snake) == 2 and level != Level.GROWTH_SPURT
+	var can_turn_around: bool = len(snake) == 2 and not level.do_unconditional_growth
 	if current_move_dir == dir or (is_turn_around_attempt and not can_turn_around):
 		return
 	
@@ -182,22 +112,21 @@ func change_snake_dir(dir: Vector2i) -> void:
 
 
 func move_snake(from_turn: bool = false) -> void:
-	if not from_turn and level == Level.CONFUSED:
-		if randf() < CONFUSED_CHANCE:
-			var safe_dirs: Array[Vector2i] = []
-			for dir in ORTHOGONALS:
-				if dir == current_move_dir:
-					continue
-				
-				if dir == -current_move_dir and len(snake) > 2:
-					continue
-				
-				if get_tile(snake[0] + dir).is_safe():
-					safe_dirs.append(dir)
+	if not from_turn and randf() < level.confused_chance:
+		var safe_dirs: Array[Vector2i] = []
+		for dir in ORTHOGONALS:
+			if dir == current_move_dir:
+				continue
 			
-			if safe_dirs:
-				change_snake_dir(safe_dirs.pick_random())
-				return
+			if dir == -current_move_dir and len(snake) > 2:
+				continue
+			
+			if get_tile(snake[0] + dir).is_safe():
+				safe_dirs.append(dir)
+		
+		if safe_dirs:
+			change_snake_dir(safe_dirs.pick_random())
+			return
 	
 	var new_head: Vector2i = snake[0] + current_move_dir
 	var new_head_tile: Tile = get_tile(new_head)
@@ -209,7 +138,7 @@ func move_snake(from_turn: bool = false) -> void:
 	var ate: bool = new_head_tile.has_apple()
 	var old_tale: Vector2i = snake[-1]
 	
-	if not (ate or level == Level.GROWTH_SPURT):
+	if not (ate or level.do_unconditional_growth):
 		clear_tile(snake[-1])
 	
 	for i in range(len(snake) - 1, 0, -1):
@@ -223,11 +152,11 @@ func move_snake(from_turn: bool = false) -> void:
 		
 		snake.append(old_tale)
 		place_apple()
-		score += level + 1
+		score += level.point_value
 		
-		if level == Level.GHOST:
+		for i in range(level.walls_made_per_eat):
 			place_flame()
-	elif level == Level.GROWTH_SPURT:
+	elif level.do_unconditional_growth:
 		snake.append(old_tale)
 	
 	draw_head()
@@ -235,10 +164,10 @@ func move_snake(from_turn: bool = false) -> void:
 		draw_segment(1, false)
 	draw_tail(len(snake) % 2 == 1)
 	
-	if level == Level.BLINDNESS:
+	if level.blindness_duration:
 		blindness_countdown -= 1
 		if blindness_countdown == 0:
-			blindness_countdown = BLINDNESS_DURATION
+			blindness_countdown = level.blindness_duration
 			
 			if blindness_cover.visible:
 				blindness_cover.hide()
@@ -249,22 +178,21 @@ func move_snake(from_turn: bool = false) -> void:
 
 
 func die() -> void:
-	if level == Level.BLINDNESS:
-		blindness_countdown = BLINDNESS_DURATION
-		
+	if level.blindness_duration:
 		blindness_cover.hide()
 	
-	match level:
-		Level.LEVEL_COUNT - 1:
-			level = Level.NORMAL
-			score = 0
-			play_sound(preload("res://tile_map/sound_effects/die.wav"))
-		_:
-			level = (level + 1) as Level
-			play_sound(preload("res://tile_map/sound_effects/rebirth.wav"))
+	if level_num == len(level_sequence) - 1:
+		level_num = 0
+		score = 0
+		play_sound(preload("res://tile_map/sound_effects/die.wav"))
+	else:
+		level_num += 1
+		play_sound(preload("res://tile_map/sound_effects/rebirth.wav"))
+	
+	level = level_sequence[level_num]
 	
 	level_transition_screen.show()
-	level_transition_label.text = get_level_name(level)
+	level_transition_label.text = level.level_name
 	
 	move_timer.stop()
 	current_move_dir = Vector2i(0, 0)
@@ -277,8 +205,10 @@ func die() -> void:
 	place_walls()
 	place_apple()
 	
-	if level == Level.GHOST:
+	for i in range(level.walls_made_per_eat):
 		place_flame()
+	
+	blindness_countdown = level.blindness_duration
 	
 	do_transition_time()
 
@@ -287,7 +217,7 @@ func reset_snake() -> void:
 	var row: int = floori(board_size.y / 2.0)
 	var right_column: int = ceili(board_size.x / 2.0)
 	
-	if level == Level.MAZE:
+	if level.generate_maze:
 		row -= 1
 	
 	snake = [Vector2i(right_column - 1, row), Vector2i(right_column, row)]
@@ -355,7 +285,7 @@ func place_walls() -> void:
 		for x in range(board_size.x):
 			place_wall(Vector2i(x, y))
 	
-	if level == Level.MAZE:
+	if level.generate_maze:
 		var center_right: int = ceili(board_size.x / 2.0)
 		for x in [center_right - 1, center_right]:
 			for y in range(0, board_size.y, 2):
@@ -466,7 +396,7 @@ func create_maze_half(left_column: int, right_column: int) -> void:
 
 
 func place_wall(pos: Vector2i) -> void:
-	if level == Level.GHOST:
+	if level.use_flames_for_walls:
 		place_flame_at(pos)
 	else:
 		set_tile(pos, Tile.WALL)
@@ -522,8 +452,10 @@ func set_tile(pos: Vector2i, sprite_coords: Vector2i, is_light: bool = true, fli
 
 
 func reset_move_timer() -> void:
-	if level == Level.LAGGY:
-		move_timer.start(MOVE_TIME_SECONDS ** randf_range(0.2, 1.3))
+	if level.lagginess:
+		var min_exponent: float = 0.5 / (level.lagginess + 1)
+		var max_exponent: float = 1 + (level.lagginess * 0.25)
+		move_timer.start(MOVE_TIME_SECONDS ** randf_range(min_exponent, max_exponent))
 	else:
 		move_timer.start(MOVE_TIME_SECONDS)
 
@@ -537,11 +469,11 @@ func get_tile(pos: Vector2i) -> Tile:
 
 
 func get_light_palette() -> Texture2D:
-	return get_level_light_palette(level)
+	return level.light_palette
 
 
 func get_dark_palette() -> Texture2D:
-	return get_level_dark_palette(level)
+	return level.dark_palette
 
 
 func play_sound(sound: AudioStreamWAV) -> void:
