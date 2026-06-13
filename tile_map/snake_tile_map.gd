@@ -6,6 +6,7 @@ enum Level {
 	GHOST,
 	LAGGY,
 	BLINDNESS,
+	GROWTH_SPURT,
 	CONFUSED,
 	MAZE,
 	LEVEL_COUNT,
@@ -52,10 +53,12 @@ static func get_level_light_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_light.png")
 		Level.BLINDNESS:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_light.png")
-		Level.MAZE:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_light.png")
+		Level.GROWTH_SPURT:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_growth_spurt_light.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_light.png")
+		Level.MAZE:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_light.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_light.png")
 
@@ -70,10 +73,12 @@ static func get_level_dark_palette(comp_level: Level) -> Texture2D:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_laggy_dark.png")
 		Level.BLINDNESS:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_blindness_dark.png")
-		Level.MAZE:
-			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_dark.png")
+		Level.GROWTH_SPURT:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_growth_spurt_dark.png")
 		Level.CONFUSED:
 			return preload("res://tile_map/tile/color_palettes/snake_colors_confused_dark.png")
+		Level.MAZE:
+			return preload("res://tile_map/tile/color_palettes/snake_colors_maze_dark.png")
 	
 	return preload("res://tile_map/tile/color_palettes/snake_colors_dark.png")
 
@@ -88,10 +93,12 @@ static func get_level_name(comp_level: Level) -> String:
 			return "Laggy"
 		Level.BLINDNESS:
 			return "Blindness"
-		Level.MAZE:
-			return "Maze"
+		Level.GROWTH_SPURT:
+			return "Growth Spurt"
 		Level.CONFUSED:
 			return "Confused"
+		Level.MAZE:
+			return "Maze"
 	
 	return "Normal"
 
@@ -154,7 +161,10 @@ func change_snake_dir(dir: Vector2i) -> void:
 	if transition_timer.time_left > 0.0:
 		return
 	
-	if current_move_dir == dir or (current_move_dir == -dir and len(snake) > 2):
+	var is_start_turn_around: bool = current_move_dir == Vector2i(0, 0) and dir == Vector2i(1, 0)
+	var is_turn_around_attempt: bool = current_move_dir == -dir or is_start_turn_around
+	var can_turn_around: bool = len(snake) == 2 and level != Level.GROWTH_SPURT
+	if current_move_dir == dir or (is_turn_around_attempt and not can_turn_around):
 		return
 	
 	match dir:
@@ -199,7 +209,7 @@ func move_snake(from_turn: bool = false) -> void:
 	var ate: bool = new_head_tile.has_apple()
 	var old_tale: Vector2i = snake[-1]
 	
-	if not ate:
+	if not (ate or level == Level.GROWTH_SPURT):
 		clear_tile(snake[-1])
 	
 	for i in range(len(snake) - 1, 0, -1):
@@ -217,6 +227,8 @@ func move_snake(from_turn: bool = false) -> void:
 		
 		if level == Level.GHOST:
 			place_flame()
+	elif level == Level.GROWTH_SPURT:
+		snake.append(old_tale)
 	
 	draw_head()
 	if len(snake) > 2:
