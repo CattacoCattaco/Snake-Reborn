@@ -68,13 +68,14 @@ static var CONFUSED := LevelSettings.new(6, "Confused", LevelType.CONFUSED, fals
 static var MAZE := LevelSettings.new(7, "Maze", LevelType.MAZE, false, 0, 0, 0, false, 0.0, true)
 
 static var DEFAULT_LEVEL_SEQUENCE: Array[LevelSettings] = [
-	NORMAL,
-	GHOST,
-	LAGGY,
-	BLINDNESS,
-	GROWTH_SPURT,
-	CONFUSED,
-	MAZE,
+	LevelSettings.new(5, "Combo Test", LevelType.COMBO, true, 5, 0, 3, false, 0, false)
+	#NORMAL,
+	#GHOST,
+	#LAGGY,
+	#BLINDNESS,
+	#GROWTH_SPURT,
+	#CONFUSED,
+	#MAZE,
 ]
 
 @export var point_value: int = 1

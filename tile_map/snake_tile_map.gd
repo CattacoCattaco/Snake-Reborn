@@ -205,9 +205,6 @@ func die() -> void:
 	place_walls()
 	place_apple()
 	
-	for i in range(level.walls_made_per_eat):
-		place_flame()
-	
 	blindness_countdown = level.blindness_duration
 	
 	do_transition_time()
@@ -284,6 +281,9 @@ func place_walls() -> void:
 	for y in [0, board_size.y - 1]:
 		for x in range(board_size.x):
 			place_wall(Vector2i(x, y))
+	
+	for i in range(level.walls_made_per_eat):
+		place_flame()
 	
 	if level.generate_maze:
 		var center_right: int = ceili(board_size.x / 2.0)
