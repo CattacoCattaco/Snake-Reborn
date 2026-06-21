@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://cwd0177gpxshe" path="res://ui/textures/dropdown_arrow.png" id="3_tf6fo"]
 [ext_resource type="Texture2D" uid="uid://disjujm0cp5f5" path="res://ui/textures/radio_button_checked.png" id="3_u01y3"]
 [ext_resource type="Texture2D" uid="uid://q3m0f4u0qco5" path="res://ui/textures/radio_button.png" id="4_d5s2q"]
+[ext_resource type="Theme" uid="uid://1q2knre1vh03" path="res://ui/themes/level_settings.tres" id="8_3vrbh"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_g4v7s"]
 
@@ -126,7 +127,7 @@ Button/styles/hover = SubResource("StyleBoxFlat_r4djp")
 Button/styles/normal = SubResource("StyleBoxFlat_olcxn")
 Button/styles/pressed = SubResource("StyleBoxFlat_qgevu")
 
-[node name="LevelSelect" type="PanelContainer" unique_id=1934508811 node_paths=PackedStringArray("level_type_options", "play_button")]
+[node name="LevelSelect" type="PanelContainer" unique_id=1934508811 node_paths=PackedStringArray("level_type_options", "play_button", "custom_level_property_controls", "ghost_walls_box", "lagginess_box", "blindness_duration_box", "do_unconditional_growth_check", "confused_chance_box", "generate_maze_check")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -144,6 +145,13 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_g4v7s")
 script = ExtResource("1_lhhf5")
 level_type_options = NodePath("MarginContainer/VBoxContainer/GridContainer/LevelTypeOptions")
 play_button = NodePath("MarginContainer/VBoxContainer/PlayButton")
+custom_level_property_controls = [NodePath("MarginContainer/VBoxContainer/GridContainer/GhostWallsLabel"), NodePath("MarginContainer/VBoxContainer/GridContainer/GhostWallsBox"), NodePath("MarginContainer/VBoxContainer/GridContainer/LagginessLabel"), NodePath("MarginContainer/VBoxContainer/GridContainer/LagginessBox"), NodePath("MarginContainer/VBoxContainer/GridContainer/BlindnessDurationLabel"), NodePath("MarginContainer/VBoxContainer/GridContainer/BlindnessDurationBox"), NodePath("MarginContainer/VBoxContainer/GridContainer/DoUnconditionalGrowthLabel"), NodePath("MarginContainer/VBoxContainer/GridContainer/DoUnconditionalGrowthCheck"), NodePath("MarginContainer/VBoxContainer/GridContainer/ConfusedChanceLabel"), NodePath("MarginContainer/VBoxContainer/GridContainer/ConfusedChanceBox"), NodePath("MarginContainer/VBoxContainer/GridContainer/GenerateMazeLabel"), NodePath("MarginContainer/VBoxContainer/GridContainer/GenerateMazeBox")]
+ghost_walls_box = NodePath("MarginContainer/VBoxContainer/GridContainer/GhostWallsBox")
+lagginess_box = NodePath("MarginContainer/VBoxContainer/GridContainer/LagginessBox")
+blindness_duration_box = NodePath("MarginContainer/VBoxContainer/GridContainer/BlindnessDurationBox")
+do_unconditional_growth_check = NodePath("MarginContainer/VBoxContainer/GridContainer/DoUnconditionalGrowthCheck")
+confused_chance_box = NodePath("MarginContainer/VBoxContainer/GridContainer/ConfusedChanceBox")
+generate_maze_check = NodePath("MarginContainer/VBoxContainer/GridContainer/GenerateMazeBox")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=1166117856]
 layout_mode = 2
@@ -213,6 +221,76 @@ popup/item_6/text = "Maze"
 popup/item_6/id = 6
 popup/item_7/text = "Custom"
 popup/item_7/id = 7
+
+[node name="GhostWallsLabel" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=718450908]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Ghost level walls"
+label_settings = SubResource("LabelSettings_tysr3")
+
+[node name="GhostWallsBox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1454116651]
+layout_mode = 2
+theme = ExtResource("8_3vrbh")
+max_value = 10.0
+rounded = true
+
+[node name="LagginessLabel" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=140478007]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Lagginess"
+label_settings = SubResource("LabelSettings_tysr3")
+
+[node name="LagginessBox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=412178190]
+layout_mode = 2
+theme = ExtResource("8_3vrbh")
+max_value = 20.0
+rounded = true
+
+[node name="BlindnessDurationLabel" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1464115041]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Blindness Duration"
+label_settings = SubResource("LabelSettings_tysr3")
+
+[node name="BlindnessDurationBox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=2000721405]
+layout_mode = 2
+theme = ExtResource("8_3vrbh")
+max_value = 10.0
+rounded = true
+
+[node name="DoUnconditionalGrowthLabel" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1213722647]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Unconditional Growth"
+label_settings = SubResource("LabelSettings_tysr3")
+
+[node name="DoUnconditionalGrowthCheck" type="CheckButton" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=765764265]
+layout_mode = 2
+size_flags_horizontal = 0
+theme = ExtResource("8_3vrbh")
+
+[node name="ConfusedChanceLabel" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1652097303]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Confused Chance"
+label_settings = SubResource("LabelSettings_tysr3")
+
+[node name="ConfusedChanceBox" type="SpinBox" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1075337321]
+layout_mode = 2
+theme = ExtResource("8_3vrbh")
+max_value = 1.0
+step = 0.01
+
+[node name="GenerateMazeLabel" type="Label" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=438888427]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Generate Maze"
+label_settings = SubResource("LabelSettings_tysr3")
+
+[node name="GenerateMazeBox" type="CheckButton" parent="MarginContainer/VBoxContainer/GridContainer" unique_id=1101089349]
+layout_mode = 2
+size_flags_horizontal = 0
+theme = ExtResource("8_3vrbh")
 
 [node name="PlayButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=27131984]
 layout_mode = 2
