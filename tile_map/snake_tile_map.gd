@@ -33,6 +33,8 @@ var score: int:
 
 
 func _ready() -> void:
+	level = level_sequence[level_num]
+	
 	var offset := Vector2i(320, 180) - (board_size * 8)
 	for y in range(board_size.y):
 		tiles.append([])

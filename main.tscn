@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://d0t42184sogyl"]
 
+[ext_resource type="Script" uid="uid://blk1f2muyum73" path="res://main.gd" id="1_h2yge"]
 [ext_resource type="Script" uid="uid://pswl4m5w42xh" path="res://tile_map/snake_tile_map.gd" id="1_ig7tw"]
 [ext_resource type="FontFile" uid="uid://bun68qp6shgue" path="res://ui/font/Basic5x9.ttf" id="4_lquwl"]
 
@@ -13,7 +14,9 @@ font = ExtResource("4_lquwl")
 font_size = 27
 font_color = Color(0, 0, 0, 1)
 
-[node name="Main" type="Node2D" unique_id=475188452]
+[node name="Main" type="Node2D" unique_id=475188452 node_paths=PackedStringArray("snake_tile_map")]
+script = ExtResource("1_h2yge")
+snake_tile_map = NodePath("SnakeTileMap")
 
 [node name="UI" type="Control" parent="." unique_id=1593183884]
 custom_minimum_size = Vector2(640, 360)

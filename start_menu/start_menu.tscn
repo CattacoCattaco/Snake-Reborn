@@ -2,7 +2,7 @@
 
 [ext_resource type="Shader" uid="uid://i5dexvhnvoaj" path="res://recolor/recolor.gdshader" id="1_pelf0"]
 [ext_resource type="Script" uid="uid://cmm3xxu43gxfq" path="res://start_menu/start_menu.gd" id="1_unh8j"]
-[ext_resource type="PackedScene" uid="uid://d0t42184sogyl" path="res://main.tscn" id="2_0uyxu"]
+[ext_resource type="PackedScene" uid="uid://ddv0q2cxvxuhc" path="res://level_select_screen/level_select_screen.tscn" id="2_0uyxu"]
 [ext_resource type="Texture2D" uid="uid://cxwq4c07qitj1" path="res://tile_map/tile/color_palettes/snake_colors_light.png" id="2_x6gm5"]
 [ext_resource type="Texture2D" uid="uid://cs1s632kod3sm" path="res://start_menu/title_screen.png" id="3_unh8j"]
 [ext_resource type="Shader" uid="uid://cb4cg1ippbe5k" path="res://recolor/enter_to_start.gdshader" id="5_dkj6a"]
@@ -28,7 +28,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 focus_mode = 2
 script = ExtResource("1_unh8j")
-main_scene = ExtResource("2_0uyxu")
+level_select_scene = ExtResource("2_0uyxu")
 title_screen = NodePath("TitleScreen")
 press_enter_to_start = NodePath("PressEnterToStart")
 

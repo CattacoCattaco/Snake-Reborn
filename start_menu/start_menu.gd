@@ -3,7 +3,7 @@ extends Control
 
 const LevelType = LevelSettings.LevelType
 
-@export var main_scene: PackedScene
+@export var level_select_scene: PackedScene
 
 @export var title_screen: Sprite2D
 @export var press_enter_to_start: Sprite2D
@@ -27,6 +27,6 @@ func _ready() -> void:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.is_action_pressed("start"):
-			var main: Node2D = main_scene.instantiate()
-			get_tree().root.add_child(main)
+			var level_select: Control = level_select_scene.instantiate()
+			get_tree().root.add_child(level_select)
 			queue_free()
